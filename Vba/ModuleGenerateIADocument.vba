@@ -90,8 +90,6 @@ Sub CopyCell(BookMarkName As String, RowOffset As Integer)
 End Sub
 
 
-
-
 Sub CopyImageFromWord(BookMarkName As String)
               
    ' Set docSource = wdSource.Documents.Open(PersonCell.Offset(-1, 0).value)
@@ -120,31 +118,16 @@ Sub CopyImageFromWord(BookMarkName As String)
     End If
     docCopySource.Close
     Set docCopySource = Nothing
-    
+    'SaveClipboardBMP
     If hasImage And doc.Bookmarks.Exists(BookMarkName) = True Then
         wd.Activate
         wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
-        wd.Selection.PasteSpecial xlPasteFormats
+        wd.Selection.Paste
     End If
 End Sub
 
 
-Sub DoCopy()
-
-    'Merge Image
-    If PersonCell.Offset(-1, 0).value <> "" Then
-    
-        CopyImageFromWord "StudentSignature"
-        CopyImageFromWord "StudentPhoto"
-        CopyImageFromWord "CompanyChop"
-        CopyImageFromWord "CompanyMentorSign"
-        CopyImageFromWord "hodSign"
-        CopyImageFromWord "DeptChop"
-        CopyImageFromWord "mentorSign"
-    End If
-
-    'AllPictSize
-'go to each bookmark and type in details
+Sub DoFieldCopy()
     CopyCell "studentID", 0
     CopyCell "studentNameEng", 1
     CopyCell "studentNameChi", 2
@@ -216,8 +199,24 @@ Sub DoCopy()
         
         CopyCell "emergencyPhone" & i, 55
     Next i
-    
-    
+End Sub
+
+Sub DoCopy()
+
+    'Merge Image
+    If PersonCell.Offset(-1, 0).value <> "" Then
+        CopyImageFromWord "StudentSignature"
+        CopyImageFromWord "StudentPhoto"
+        CopyImageFromWord "CompanyChop"
+        CopyImageFromWord "CompanyMentorSign"
+        CopyImageFromWord "hodSign"
+        CopyImageFromWord "DeptChop"
+        CopyImageFromWord "mentorSign"
+    End If
+
+    'AllPictSize
+'go to each bookmark and type in details
+    DoFieldCopy
 End Sub
 
 
