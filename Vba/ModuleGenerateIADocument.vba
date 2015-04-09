@@ -49,21 +49,16 @@ Sub CreateWordDocuments()
     
     'create a reference to all the people
     SelectRange
-    
-    ProcessCreate "Attachment Info By IVE Mentor & Student.docx"
-    ProcessCreate "Certifcate of Participation.docx"
-    ProcessCreate "Confirmation of Student Intern Status By IVE IA Coordinator.docx"
-    ProcessCreate "Final Report By IVE Mentor.docx"
-    ProcessCreate "Final Report By Organization Mentor.docx"
-    ProcessCreate "IA Application Form By Student.docx"
-    ProcessCreate "IA Evaluation by Student.docx"
-    ProcessCreate "IA Registration Form By Organization.docx"
-    ProcessCreate "Insurance Coverage for Students on IA_VTC by Student's Parent-Guardian.docx"
-    ProcessCreate "Periodic Report (4-Week) By Student.docx"
-    ProcessCreate "Statement of Understanding By IVE IA Coordinator.docx"
-    ProcessCreate "Survey by Organization.docx"
-    ProcessCreate "Visit-Monitoring Report By IVE Mentor.docx"
-    ProcessCreate "IA Company Mentor Electronic Documents Agreement.docx", True
+        
+    ProcessCreate "Final Report (CompanyOrganization Mentor).docx"
+    ProcessCreate "Evaluation Report (Student).docx"
+    ProcessCreate "Industrial Attachment Certificate (Template).docx"
+    ProcessCreate "Industrial Attachment Form (Organization).docx"
+    ProcessCreate "Insurance Coverage for Industrial Attachment Students.docx"
+    ProcessCreate "Monthly Report (Student).docx"
+    ProcessCreate "Statement of Understanding (Organization).docx"
+    ProcessCreate "Student Information.docx"
+    ProcessCreate "Visiting Report (IA Supervisor) (Optional).docx", True
            
     ClearClipBoard
     wd.Quit
@@ -85,7 +80,9 @@ Sub CopyCell(BookMarkName As String, RowOffset As Integer)
     'copy each cell to relevant Word bookmark
     If doc.Bookmarks.Exists(BookMarkName) = True Then
         wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
-        wd.Selection.TypeText PersonCell.Offset(RowOffset, 0).value
+        wd.Selection.InsertAfter PersonCell.Offset(RowOffset, 0).value
+        wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
+        wd.Selection.Delete
     End If
 End Sub
 
@@ -99,6 +96,8 @@ Sub CopyImageFromWord(BookMarkName As String)
     sourceWordPathName = PersonCell.Offset(-1, 0).value
     Set docCopySource = wd.Documents.Open(sourceWordPathName)
     
+    docCopySource.ActiveWindow.View.ReadingLayout = False
+    
     Dim cc As ContentControl
     Dim docCCs As ContentControls
     ' Get the collection of all content controls with this tag.
@@ -111,7 +110,9 @@ Sub CopyImageFromWord(BookMarkName As String)
         For Each cc In docCCs
             If cc.Tag = BookMarkName And cc.Range.InlineShapes.Item(1).Height <> 85 Then
             '85 size is the trick of no pic
-                cc.Range.CopyAsPicture
+                wd.Activate
+                cc.Range.Select
+                wd.Selection.Copy
                 hasImage = True
             End If
         Next
@@ -185,10 +186,13 @@ Sub DoFieldCopy()
     CopyCell "emergencyRelation", 54
     CopyCell "emergencyPhone", 55
     CopyCell "HeadOfDeptName", 56
+    CopyCell "workingHoursTotal", 58
     'CopyCell "docDate", 57
     CopyCell "iveMentorFax", 57
     'CopyCell "organMentorName", 58
-
+    
+    
+    
 
     Dim i As Integer
     For i = 1 To 5
@@ -196,13 +200,14 @@ Sub DoFieldCopy()
         CopyCell "studentNameEng" & i, 1
         CopyCell "department" & i, 3
         CopyCell "campus" & i, 6
+        CopyCell "organizationNameEng" & i, 12
+        CopyCell "iveMentorNameEng" & i, 45
         
         CopyCell "emergencyPhone" & i, 55
     Next i
 End Sub
 
 Sub DoCopy()
-
     'Merge Image
     If PersonCell.Offset(-1, 0).value <> "" Then
         CopyImageFromWord "StudentSignature"
@@ -215,7 +220,7 @@ Sub DoCopy()
     End If
 
     'AllPictSize
-'go to each bookmark and type in details
+    'go to each bookmark and type in details
     DoFieldCopy
 End Sub
 

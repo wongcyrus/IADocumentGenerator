@@ -47,8 +47,8 @@ Sub DeleteSheet(strSheetName As String)
 End Sub
 
 Sub ConvertText()
-    For Each cell In Selection
-        cell.value = Val(cell.value)
+    For Each Cell In Selection
+        Cell.value = Val(Cell.value)
     Next
     Selection.NumberFormat = "General"
 End Sub
