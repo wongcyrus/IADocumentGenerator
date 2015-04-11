@@ -202,7 +202,8 @@ Sub DoFieldCopy()
         CopyCell "campus" & i, 6
         CopyCell "organizationNameEng" & i, 12
         CopyCell "iveMentorNameEng" & i, 45
-        
+        CopyCell "jobStartDateDMY" & i, 26
+        CopyCell "workingHoursTotal" & i, 58
         CopyCell "emergencyPhone" & i, 55
     Next i
 End Sub
