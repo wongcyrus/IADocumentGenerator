@@ -50,13 +50,13 @@ Sub CreateWordDocuments()
     'create a reference to all the people
     SelectRange
         
+    ProcessCreate "Statement of Understanding (Organization).docx"
     ProcessCreate "Final Report (CompanyOrganization Mentor).docx"
     ProcessCreate "Evaluation Report (Student).docx"
     ProcessCreate "Industrial Attachment Certificate (Template).docx"
     ProcessCreate "Industrial Attachment Form (Organization).docx"
     ProcessCreate "Insurance Coverage for Industrial Attachment Students.docx"
     ProcessCreate "Monthly Report (Student).docx"
-    ProcessCreate "Statement of Understanding (Organization).docx"
     ProcessCreate "Student Information.docx"
     ProcessCreate "Visiting Report (IA Supervisor) (Optional).docx", True
            
@@ -86,6 +86,24 @@ Sub CopyCell(BookMarkName As String, RowOffset As Integer)
     End If
 End Sub
 
+Sub CopyImageFromFile(BookMarkName As String, Optional imageFileName As String)
+    Dim GraphImage As String
+    If imageFileName = "" Then
+        GraphImage = FilePathOpen & "SignAndChop/" & BookMarkName & ".jpg"
+    Else
+        GraphImage = FilePathOpen & "SignAndChop/" & imageFileName & ".jpg"
+    End If
+    
+    Dim hasImage As Boolean
+    hasImage = Dir(GraphImage) <> ""
+    
+    If hasImage And doc.Bookmarks.Exists(BookMarkName) = True Then
+        wd.Activate
+        wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
+        wd.Selection.InlineShapes.AddPicture filename:=GraphImage, LinkToFile:=False, SaveWithDocument:=True
+    End If
+  
+End Sub
 
 Sub CopyImageFromWord(BookMarkName As String)
               
@@ -209,29 +227,33 @@ Sub DoFieldCopy()
 End Sub
 
 Sub DoCopy()
+ Dim mentorCNA As String
+    mentorCNA = PersonCell.Offset(50, 0).value
+    Dim mentorCNAArray() As String
+    mentorCNAArray = Split(mentorCNA, "@", 2)
     'Merge Image
-    If PersonCell.Offset(-1, 0).value <> "" Then
+    CopyImageFromFile "hodSign"
+    CopyImageFromFile "DeptChop"
+    CopyImageFromFile "mentorSign", mentorCNAArray(0)
+    
+    If False And PersonCell.Offset(-1, 0).value <> "" Then
         CopyImageFromWord "StudentSignature"
         CopyImageFromWord "StudentPhoto"
         CopyImageFromWord "CompanyChop"
         CopyImageFromWord "CompanyMentorSign"
-        CopyImageFromWord "hodSign"
-        CopyImageFromWord "DeptChop"
-        CopyImageFromWord "mentorSign"
     End If
-
     'AllPictSize
     'go to each bookmark and type in details
     DoFieldCopy
 End Sub
 
 
-Sub ProcessCreate(FileName As String, Optional copyToAllStudents As Boolean = False)
+Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = False)
     'for each person in list
     For Each PersonCell In PersonRange
     
         'open a document in Word
-        Set doc = wd.Documents.Open(FilePathOpen & "/WordTemplate/" & FileName)
+        Set doc = wd.Documents.Open(FilePathOpen & "/WordTemplate/" & filename)
     
         'go to each bookmark and type in details
         DoCopy
@@ -242,11 +264,11 @@ Sub ProcessCreate(FileName As String, Optional copyToAllStudents As Boolean = Fa
         'create folder
         makeSaveDir FilePathSave & PersonCell.value & "(" & orgName & ")\"
         'save and close this document
-        doc.SaveAs2 FilePathSave & PersonCell.value & "(" & orgName & ")\" & PersonCell.value & " " & FileName
+        doc.SaveAs2 FilePathSave & PersonCell.value & "(" & orgName & ")\" & PersonCell.value & " " & filename
         
         'Save one more copy for batch printing
         If copyToAllStudents Then
-            doc.SaveAs2 FilePathSaveAllStudents & "\" & PersonCell.value & " " & FileName
+            doc.SaveAs2 FilePathSaveAllStudents & "\" & PersonCell.value & " " & filename
         End If
         doc.Close
         Set doc = Nothing
@@ -296,7 +318,7 @@ Sub WordExtract()
     Range("A1").Select
      
      'For FYI Info....
-    wsMessage.Popup " This Utility Only Works with *.Doc Files, Not the *.Docx, Press OK To Continue.... ", 5, _
+    wsMessage.Popup " This Utility Only Works with *.Docx Files in the Import Folder, Press OK To Continue.... ", 5, _
     "..... Information .....", 4096
      
      'Get existing instance of Word if it's open; otherwise create a new one
