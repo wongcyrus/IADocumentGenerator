@@ -110,6 +110,83 @@ Public Function StartsWith(str As String, start As String) As Boolean
      StartsWith = (Left(Trim(UCase(str)), startLen) = UCase(start))
 End Function
 
+'http://www.rondebruin.nl/win/s7/win001.htm
+Sub SendEmail(toEmail As String, subject As String, body As String, filePathName As String)
+'Create the mail
+        Set OutApp = CreateObject("Outlook.Application")
+        Set OutMail = OutApp.CreateItem(0)
+     
+        On Error Resume Next
+        With OutMail
+            .to = toEmail
+            .cc = ""
+            .BCC = ""
+            .subject = subject
+            .body = body
+            .Attachments.Add filePathName
+            .Send   'or use .Display
+        End With
+        On Error GoTo 0
+End Sub
+
+Sub NewZip(sPath)
+'Create empty Zip File
+'Changed by keepITcool Dec-12-2005
+    If Len(Dir(sPath)) > 0 Then Kill sPath
+    Open sPath For Output As #1
+    Print #1, Chr$(80) & Chr$(75) & Chr$(5) & Chr$(6) & String(18, 0)
+    Close #1
+End Sub
+
+Function FileExists(ByVal FileToTest As String) As Boolean
+   FileExists = (Dir(FileToTest) <> "")
+End Function
+
+Sub DeleteFile(ByVal FileToDelete As String)
+   If FileExists(FileToDelete) Then 'See above
+      SetAttr FileToDelete, vbNormal
+      Kill FileToDelete
+   End If
+End Sub
+Public Function Zip_All_Files_in_Folder(FolderName As String) As String
+
+    Dim FileNameZip As String
+   
+   
+    FileNameZip = FolderName & ".zip"
+    
+    DeleteFile FileNameZip
+
+    'Create empty Zip File
+    NewZip (FileNameZip)
+    
+    Dim innerSource ' this should be a Variant
+    Dim innerDest ' this should be a Variant
+    innerSource = FolderName
+    innerDest = FileNameZip
+    Dim oApp: Set oApp = CreateObject("Shell.Application")
+    oApp.Namespace(innerDest).CopyHere oApp.Namespace(innerSource).items
+
+
+    'Keep script waiting until Compressing is done
+    On Error Resume Next
+    Do Until oApp.Namespace(innerDest).items.Count = _
+       oApp.Namespace(innerSource).items.Count
+        Application.Wait (Now + TimeValue("0:00:01"))
+    Loop
+    On Error GoTo 0
+
+    Zip_All_Files_in_Folder = FileNameZip
+End Function
+
+Sub test()
+Dim f As String
+Dim ff As String
+f = "C:\Users\cyrus\Documents\GitHub\IADocumentGenerator\Save\212212432312(nkl)"
+ff = Zip_All_Files_in_Folder(f)
+SendEmail "cywong@vtc.edu.hk", "Test", "demo", ff
+End Sub
+
 
 
 

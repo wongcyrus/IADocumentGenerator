@@ -156,7 +156,7 @@ Function IsFormatHyphenCorrect(sentence) As Boolean
     regEx.Pattern = "\w[ ]-[ ]\w" 'Match abc - def
     regEx.IgnoreCase = True 'True to ignore case
     regEx.Global = True 'True matches all occurances, False matches the first occurance
-    If regEx.Test(sentence) Then
+    If regEx.test(sentence) Then
         IsFormatHyphenCorrect = True
     Else
         IsFormatHyphenCorrect = False
