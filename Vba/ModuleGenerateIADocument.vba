@@ -35,12 +35,15 @@ Dim FilePathOpen As String
 Dim FilePathSave As String
 Dim FilePathSaveAllStudents As String
 
-
-Sub CreateWordDocuments()
-
+Sub InitPathVariable()
     FilePathOpen = Application.ActiveWorkbook.Path & "\"
     FilePathSave = Application.ActiveWorkbook.Path & "\Save\"
     FilePathSaveAllStudents = FilePathSave & "\AllStudents\"
+End Sub
+
+Sub CreateWordDocuments()
+
+    InitPathVariable
     
     makeSaveDir FilePathSave
     makeSaveDir FilePathSaveAllStudents
@@ -48,7 +51,7 @@ Sub CreateWordDocuments()
    ' wdCopySource.Visible = True
     
     'create a reference to all the people
-    SelectRange
+    SelectStudentsRange
         
     ProcessCreate "Statement of Understanding (Organization).docx"
     ProcessCreate "Final Report (CompanyOrganization Mentor).docx"
@@ -236,7 +239,7 @@ Sub DoCopy()
     CopyImageFromFile "DeptChop"
     CopyImageFromFile "mentorSign", mentorCNAArray(0)
     
-    If False And PersonCell.Offset(-1, 0).value <> "" Then
+    If PersonCell.Offset(-1, 0).value <> "" Then
         CopyImageFromWord "StudentSignature"
         CopyImageFromWord "StudentPhoto"
         CopyImageFromWord "CompanyChop"
@@ -275,13 +278,38 @@ Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = Fa
     Next PersonCell
 End Sub
 
+Sub ZipAndEmail()
+    InitPathVariable
+    
+    SelectStudentsRange
+    'for each person in list
+    For Each PersonCell In PersonRange
+            
+        Dim orgName As String
+        orgName = PersonCell.Offset(12, 0).value
+        'create folder
+        Dim studentId As String
+        studentId = PersonCell.value
+        
+        Dim documentFolder As String
+        documentFolder = FilePathSave & studentId & "(" & orgName & ")"
+       
+        SendEmail studentId & "@stu.vtc.edu.hk", _
+        "IA Documment Set", "Please check the content, and upload it to MyPortal, if there is no error!", _
+        Zip_All_Files_in_Folder(documentFolder)
+    Next PersonCell
+End Sub
+
+
+
 Sub makeSaveDir(Path As String)
     If Len(Dir(Path, vbDirectory)) = 0 Then
         MkDir (Path)
     End If
 End Sub
 
-Sub SelectRange()
+Sub SelectStudentsRange()
+    Worksheets("Student Data").Activate
     Range("B2").Select
     If IsEmpty(Cells(2, 3)) Then
         Set PersonRange = Range(ActiveCell, ActiveCell)
