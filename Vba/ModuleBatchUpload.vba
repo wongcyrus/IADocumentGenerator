@@ -80,15 +80,24 @@ Sub CopyBlock()
 '
 ' CopyBlock Macro
 '
-    
+    'Handle First part
     Windows(sourceName).Activate
-    Range("I2:AL" & lastRow).Select
+    Range("I2:AE" & lastRow).Select
     Selection.Copy
     Windows(distinationName).Activate
     Range("c7").Select
    ' ActiveSheet.Paste
      
     Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+        
+  'Handle Second part
+    Windows(sourceName).Activate
+    Range("AF2:AL" & lastRow).Select
+    Selection.Copy
+    Windows(distinationName).Activate
+    Range("AA7").Select
+      Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
         :=False, Transpose:=False
 End Sub
 
@@ -167,7 +176,7 @@ End Function
 
 Sub ConvertVerifiedHoursToNumber()
     Windows(distinationName).Activate
-    Range("AF7").Select
+    Range("AG7").Select
     Range(Selection, Selection.End(xlDown)).Select
     ConvertText
 End Sub
@@ -249,10 +258,12 @@ Sub GenerateStudentPortfolioIndustrialAttachmentBatch()
     CopyCourseField
     CopyColumn sourceName, "D", 2, distinationName, "A", 7
     CopyColumn sourceName, "E", 2, distinationName, "B", 7
+    
+    'CopyColumn sourceName, "AM", 2, distinationName, "Z", 7
         
     CopyBlock
                 
-    CopyColumn sourceName, "N", 2, distinationName, "AF", 7
+    'CopyColumn sourceName, "N", 2, distinationName, "AG", 7
     
     If needFixAttachmentCategory Then
         FixAttachmentCategory
@@ -271,11 +282,11 @@ Sub GenerateStudentPortfolioIndustrialAttachmentBatch()
     TruncateValue "F", 50
     TruncateValue "M", 120
     TruncateValue "W", 120
-    TruncateValue "AA", 120
+    TruncateValue "AB", 120
        
     
-    ConvertVerifiedHoursToNumber
-    CreatePivotTableForVerifiedHours
+    'ConvertVerifiedHoursToNumber
+    'CreatePivotTableForVerifiedHours
     
     Windows(distinationName).Activate
     ActiveWorkbook.Sheets("Student Attachment Records").Activate
