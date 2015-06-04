@@ -118,7 +118,7 @@ Sub SendEmail(toEmail As String, subject As String, body As String, filePathName
      
         On Error Resume Next
         With OutMail
-            .to = toEmail
+            .To = toEmail
             .cc = ""
             .BCC = ""
             .subject = subject

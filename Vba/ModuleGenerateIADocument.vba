@@ -262,16 +262,19 @@ Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = Fa
         DoCopy
         
         Dim orgName As String
-        orgName = PersonCell.Offset(12, 0).value
+        orgName = Trim(PersonCell.Offset(12, 0).value)
+        
+        Dim studentId As String
+        studentId = Trim(PersonCell.value)
               
         'create folder
-        makeSaveDir FilePathSave & PersonCell.value & "(" & orgName & ")\"
+        makeSaveDir FilePathSave & studentId & "(" & orgName & ")\"
         'save and close this document
-        doc.SaveAs2 FilePathSave & PersonCell.value & "(" & orgName & ")\" & PersonCell.value & " " & filename
+        doc.SaveAs2 FilePathSave & studentId & "(" & orgName & ")\" & studentId & " " & filename
         
         'Save one more copy for batch printing
         If copyToAllStudents Then
-            doc.SaveAs2 FilePathSaveAllStudents & "\" & PersonCell.value & " " & filename
+            doc.SaveAs2 FilePathSaveAllStudents & "\" & studentId & " " & filename
         End If
         doc.Close
         Set doc = Nothing
@@ -286,10 +289,10 @@ Sub ZipAndEmail()
     For Each PersonCell In PersonRange
             
         Dim orgName As String
-        orgName = PersonCell.Offset(12, 0).value
+        orgName = Trim(PersonCell.Offset(12, 0).value)
         'create folder
         Dim studentId As String
-        studentId = PersonCell.value
+        studentId = Trim(PersonCell.value)
         
         Dim documentFolder As String
         documentFolder = FilePathSave & studentId & "(" & orgName & ")"
@@ -530,6 +533,8 @@ Err_Handler:
         oWord.Quit
     End Select
 End Sub
+
+
 
 
 
