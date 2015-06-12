@@ -179,14 +179,23 @@ Public Function Zip_All_Files_in_Folder(FolderName As String) As String
     Zip_All_Files_in_Folder = FileNameZip
 End Function
 
-Sub test()
-Dim f As String
-Dim ff As String
-f = "C:\Users\cyrus\Documents\GitHub\IADocumentGenerator\Save\212212432312(nkl)"
-ff = Zip_All_Files_in_Folder(f)
-SendEmail "cywong@vtc.edu.hk", "Test", "demo", ff
-End Sub
 
+Function onlyDigits(s As String) As String
+    ' Variables needed (remember to use "option explicit").   '
+    Dim retval As String    ' This is the return string.      '
+    Dim i As Integer        ' Counter for character position. '
 
+    ' Initialise return string to empty                       '
+    retval = ""
 
+    ' For every character in input string, copy digits to     '
+    '   return string.                                        '
+    For i = 1 To Len(s)
+        If Mid(s, i, 1) >= "0" And Mid(s, i, 1) <= "9" Then
+            retval = retval + Mid(s, i, 1)
+        End If
+    Next
 
+    ' Then return the return string.                          '
+    onlyDigits = retval
+End Function

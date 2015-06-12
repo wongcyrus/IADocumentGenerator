@@ -83,7 +83,9 @@ Sub CopyCell(BookMarkName As String, RowOffset As Integer)
     'copy each cell to relevant Word bookmark
     If doc.Bookmarks.Exists(BookMarkName) = True Then
         wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
-        wd.Selection.InsertAfter PersonCell.Offset(RowOffset, 0).value
+        Dim value As String
+        value = PersonCell.Offset(RowOffset, 0).Text
+        wd.Selection.InsertAfter value
         wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
         wd.Selection.Delete
     End If
@@ -265,7 +267,7 @@ Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = Fa
         orgName = Trim(PersonCell.Offset(12, 0).value)
         
         Dim studentId As String
-        studentId = Trim(PersonCell.value)
+        studentId = onlyDigits(Trim(PersonCell.value))
               
         'create folder
         makeSaveDir FilePathSave & studentId & "(" & orgName & ")\"
@@ -292,7 +294,7 @@ Sub ZipAndEmail()
         orgName = Trim(PersonCell.Offset(12, 0).value)
         'create folder
         Dim studentId As String
-        studentId = Trim(PersonCell.value)
+        studentId = onlyDigits(Trim(PersonCell.value))
         
         Dim documentFolder As String
         documentFolder = FilePathSave & studentId & "(" & orgName & ")"
@@ -533,8 +535,3 @@ Err_Handler:
         oWord.Quit
     End Select
 End Sub
-
-
-
-
-
