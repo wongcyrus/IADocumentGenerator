@@ -25,6 +25,7 @@ Option Explicit
 
 Dim wd As New Word.Application
 Dim PersonCell As Range
+Dim IaMark As String
 'create copy of Word in memory
 Dim doc As Word.Document
 Dim docCopySource As Word.Document
@@ -52,22 +53,123 @@ Sub CreateWordDocuments()
     
     'create a reference to all the people
     SelectStudentsRange
-        
-    ProcessCreate "Statement of Understanding (Organization).docx"
-    ProcessCreate "Final Report (CompanyOrganization Mentor).docx"
-    ProcessCreate "Evaluation Report (Student).docx"
-    ProcessCreate "Industrial Attachment Certificate (Template).docx"
-    ProcessCreate "Industrial Attachment Form (Organization).docx"
-    ProcessCreate "Insurance Coverage for Industrial Attachment Students.docx"
-    ProcessCreate "Monthly Report (Student).docx"
-    ProcessCreate "Student Information.docx"
-    ProcessCreate "Visiting Report (IA Supervisor) (Optional).docx", True
+    
+    Dim wordFiles(1 To 11) As String
+    wordFiles(1) = "Rubrics"
+    wordFiles(2) = "HeadSection"
+    wordFiles(3) = "Student Information"
+    wordFiles(4) = "Industrial Attachment Form (Organization)"
+    wordFiles(5) = "Statement of Understanding (Organization)"
+    wordFiles(6) = "Insurance Coverage for Industrial Attachment Students"
+    wordFiles(7) = "Monthly Report (Student)"
+    wordFiles(8) = "Visiting Report (IA Supervisor) (Optional)"
+    wordFiles(9) = "Final Report (CompanyOrganization Mentor)"
+    wordFiles(10) = "Evaluation Report (Student)"
+    wordFiles(11) = "Industrial Attachment Certificate (Template)"
+    
+    Dim wordFilesFormat(1 To 11) As Integer
+    wordFilesFormat(1) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(2) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(3) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(4) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(5) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(6) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(7) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(8) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(9) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(10) = wdFormatSurroundingFormattingWithEmphasis
+    wordFilesFormat(11) = wdFormatOriginalFormatting
+     
+    
+    Dim i As Integer
+    For i = 1 To UBound(wordFiles)
+     
+        If i = 9 Then 'random mark for Final Report (CompanyOrganization Mentor)
+         ' ProcessCreate wordFiles(i) & ".docx", True
+        Else
+          'ProcessCreate wordFiles(i) & ".docx", False
+        End If
+    Next i
+    
+    Dim fs, subFolder As Collection
+    Set fs = CreateObject("Scripting.FileSystemObject")
+     
+    Dim studentFolder
+    For Each studentFolder In fs.GetFolder(FilePathSave).SubFolders
+        If "AllStudents" <> studentFolder.Name Then
+            CombineToHandbook studentFolder.Name, wordFiles, wordFilesFormat
+        End If
+    Next
            
     ClearClipBoard
     wd.Quit
     Set wd = Nothing
     
     MsgBox "Created files in " & FilePathSave
+End Sub
+
+Sub RandomX()
+    'copy each cell to relevant Word bookmark
+    Dim i As Integer
+    For i = 1 To 26 Step 2
+        Dim id1 As String, id2 As String, v1 As String, v2 As String
+        id1 = "randomX" & i
+        id2 = "randomX" & (i + 1)
+        
+        Dim LRandomNumber As Integer
+        LRandomNumber = Int((100 + 1) * Rnd)
+        If LRandomNumber > 50 Then
+            v1 = ""
+            v2 = "X"
+        Else
+            v1 = "X"
+            v2 = ""
+        End If
+        PasteToBookMark id1, v1
+        PasteToBookMark id2, v2
+    Next
+End Sub
+
+Sub PasteToBookMark(id As String, value As String)
+    If doc.Bookmarks.Exists(id) = True Then
+        wd.Selection.GoTo What:=wdGoToBookmark, Name:=id
+        wd.Selection.InsertAfter value
+        wd.Selection.GoTo What:=wdGoToBookmark, Name:=id
+        wd.Selection.Delete
+    End If
+End Sub
+
+Sub CombineToHandbook(folder As String, wordFiles() As String, wordFilesFormat() As Integer)
+    Dim mergePathfilename As String
+    mergePathfilename = FilePathSave & "/" & folder & "/Handbook.docx"
+
+    Dim objWord, objDoc, objSelection, objTempWord, tempDoc, objTempSelection
+    Set objWord = CreateObject("Word.Application")
+    Set objDoc = objWord.Documents.Add
+
+    Set objSelection = objWord.Selection
+    objDoc.SaveAs (mergePathfilename)
+    Dim i As Integer
+    For i = 1 To UBound(wordFiles)
+        Set objTempWord = CreateObject("Word.Application")
+        Set tempDoc = objWord.Documents.Open(FilePathSave & "/" & folder & "/" & wordFiles(i) & ".docx")
+        Set objTempSelection = objTempWord.Selection
+               
+        tempDoc.Range.Select
+        tempDoc.Range.Copy
+        objSelection.TypeParagraph
+        objSelection.PasteAndFormat (wordFilesFormat(i))
+        objSelection.InsertBreak (wdSectionBreakNextPage)
+        tempDoc.Close
+       
+    Next i
+    objDoc.Save
+    'objDoc.SaveAs2 FilePathSaveAllStudents & "\" & IaMark & "_Handbook.docx"
+    objDoc.Close
+    
+    Dim fs
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    fs.CopyFile mergePathfilename, FilePathSaveAllStudents & "\Handbook_" & folder & ".docx"
 End Sub
 
 Public Sub ClearClipBoard()
@@ -81,14 +183,7 @@ End Sub
 
 Sub CopyCell(BookMarkName As String, RowOffset As Integer)
     'copy each cell to relevant Word bookmark
-    If doc.Bookmarks.Exists(BookMarkName) = True Then
-        wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
-        Dim value As String
-        value = PersonCell.Offset(RowOffset, 0).Text
-        wd.Selection.InsertAfter value
-        wd.Selection.GoTo What:=wdGoToBookmark, Name:=BookMarkName
-        wd.Selection.Delete
-    End If
+    PasteToBookMark BookMarkName, PersonCell.Offset(RowOffset, 0).Text
 End Sub
 
 Sub CopyImageFromFile(BookMarkName As String, Optional imageFileName As String)
@@ -213,9 +308,16 @@ Sub DoFieldCopy()
     'CopyCell "docDate", 57
     CopyCell "iveMentorFax", 57
     'CopyCell "organMentorName", 58
+    CopyCell "Duties", 60
     
-    
-    
+    CopyCell "CaMark", 64
+    CopyCell "EaMark", 65
+    CopyCell "OverAllMark", 66
+    CopyCell "CaComments", 67
+    CopyCell "EaComments", 68
+    CopyCell "OverAllComments", 69
+    CopyCell "AssessmentDate", 70
+           
 
     Dim i As Integer
     For i = 1 To 5
@@ -228,12 +330,16 @@ Sub DoFieldCopy()
         CopyCell "jobStartDateDMY" & i, 26
         CopyCell "workingHoursTotal" & i, 58
         CopyCell "emergencyPhone" & i, 55
+        CopyCell "AssessmentDate" & i, 70
     Next i
 End Sub
 
 Sub DoCopy()
  Dim mentorCNA As String
     mentorCNA = PersonCell.Offset(50, 0).value
+    If mentorCNA = "" Then
+   
+    End If
     Dim mentorCNAArray() As String
     mentorCNAArray = Split(mentorCNA, "@", 2)
     'Merge Image
@@ -253,7 +359,7 @@ Sub DoCopy()
 End Sub
 
 
-Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = False)
+Sub ProcessCreate(filename As String, Random As Boolean, Optional copyToAllStudents As Boolean = False)
     'for each person in list
     For Each PersonCell In PersonRange
     
@@ -261,6 +367,7 @@ Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = Fa
         Set doc = wd.Documents.Open(FilePathOpen & "/WordTemplate/" & filename)
     
         'go to each bookmark and type in details
+        
         DoCopy
         
         Dim orgName As String
@@ -272,7 +379,11 @@ Sub ProcessCreate(filename As String, Optional copyToAllStudents As Boolean = Fa
         'create folder
         makeSaveDir FilePathSave & studentId & "(" & orgName & ")\"
         'save and close this document
-        doc.SaveAs2 FilePathSave & studentId & "(" & orgName & ")\" & studentId & " " & filename
+        doc.SaveAs2 FilePathSave & studentId & "(" & orgName & ")\" & filename
+        
+        If Random Then
+            RandomX
+        End If
         
         'Save one more copy for batch printing
         If copyToAllStudents Then
@@ -535,3 +646,6 @@ Err_Handler:
         oWord.Quit
     End Select
 End Sub
+
+
+

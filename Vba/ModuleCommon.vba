@@ -179,6 +179,13 @@ Public Function Zip_All_Files_in_Folder(FolderName As String) As String
     Zip_All_Files_in_Folder = FileNameZip
 End Function
 
+Sub test()
+Dim f As String
+Dim ff As String
+f = "C:\Users\cyrus\Documents\GitHub\IADocumentGenerator\Save\212212432312(nkl)"
+ff = Zip_All_Files_in_Folder(f)
+SendEmail "cywong@vtc.edu.hk", "Test", "demo", ff
+End Sub
 
 Function onlyDigits(s As String) As String
     ' Variables needed (remember to use "option explicit").   '
@@ -199,3 +206,7 @@ Function onlyDigits(s As String) As String
     ' Then return the return string.                          '
     onlyDigits = retval
 End Function
+
+
+
+
