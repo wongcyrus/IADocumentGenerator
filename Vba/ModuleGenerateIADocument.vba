@@ -83,11 +83,10 @@ Sub CreateWordDocuments()
     
     Dim i As Integer
     For i = 1 To UBound(wordFiles)
-     
         If i = 9 Then 'random mark for Final Report (CompanyOrganization Mentor)
-         ' ProcessCreate wordFiles(i) & ".docx", True
+          ProcessCreate wordFiles(i) & ".docx", True
         Else
-          'ProcessCreate wordFiles(i) & ".docx", False
+          ProcessCreate wordFiles(i) & ".docx", False
         End If
     Next i
     
