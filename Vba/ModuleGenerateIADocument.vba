@@ -160,11 +160,16 @@ Sub CombineToHandbook(folder As String, wordFiles() As String, wordFilesFormat()
         objSelection.PasteAndFormat (wordFilesFormat(i))
         objSelection.InsertBreak (wdSectionBreakNextPage)
         tempDoc.Close
-       
+        
+        objTempWord.Quit
+        Set objTempWord = Nothing
     Next i
     objDoc.Save
     'objDoc.SaveAs2 FilePathSaveAllStudents & "\" & IaMark & "_Handbook.docx"
     objDoc.Close
+        
+    objWord.Quit
+    Set objWord = Nothing
     
     Dim fs
     Set fs = CreateObject("Scripting.FileSystemObject")
@@ -410,7 +415,7 @@ Sub ZipAndEmail()
         documentFolder = FilePathSave & studentId & "(" & orgName & ")"
        
         SendEmail studentId & "@stu.vtc.edu.hk", _
-        "IA Documment Set", "Please check the content, and upload it to MyPortal, if there is no error!", _
+        "IA Document Set", "Please check the content, and upload it to MyPortal, if there is no error!", _
         Zip_All_Files_in_Folder(documentFolder)
     Next PersonCell
 End Sub
@@ -645,6 +650,8 @@ Err_Handler:
         oWord.Quit
     End Select
 End Sub
+
+
 
 
 
