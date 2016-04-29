@@ -381,9 +381,9 @@ Sub ProcessCreate(filename As String, Random As Boolean, Optional copyToAllStude
         studentId = onlyDigits(Trim(PersonCell.value))
               
         'create folder
-        makeSaveDir FilePathSave & studentId & "(" & orgName & ")\"
+        makeSaveDir FilePathSave & studentId & "(" & Trim(orgName) & ")\"
         'save and close this document
-        doc.SaveAs2 FilePathSave & studentId & "(" & orgName & ")\" & filename
+        doc.SaveAs2 FilePathSave & studentId & "(" & Trim(orgName) & ")\" & filename
         
         If Random Then
             RandomX
